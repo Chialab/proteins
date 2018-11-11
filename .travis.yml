@@ -16,14 +16,14 @@ jobs:
       env: CI_BUILD_TYPE=default
       node_js: 10
       before_install:
-        - yarn global add @chialab/rna-cli
+        - yarn global add github:chialab/rna-cli#fix/coverage
         - yarn add codecov
       install:
         - yarn install
       script:
         - rna unit 'test/*.js' --node --coverage
       after_success:
-        - cat reports/unit/coverage/report-lcov/*/lcov.info | ./node_modules/.bin/codecov
+        - cat reports/unit/coverage/*/lcov.info | ./node_modules/.bin/codecov
 
     - stage: test
       os: linux
@@ -89,38 +89,39 @@ jobs:
       script:
         - rna unit 'test/*.js' --nativescript ios
 
-    - stage: test
-      os: linux
-      env: CI_BUILD_TYPE=nativescript
-      language: android
-      jdk: oraclejdk8
-      node_js: 10
-      android:
-        components:
-          - platform-tools
-          - build-tools-28.0.2
-          - android-28
-          - extra-android-m2repository
-          - sys-img-armeabi-v7a-android-28
-      before_install:
-        - mkdir -p "$ANDROID_HOME/licenses"
-        - yes | sdkmanager tools
-        - yes | sdkmanager "system-images;android-28;default;x86"
-        - nvm install 10
-        - npm install -g nativescript
-        - yarn global add @chialab/rna-cli
-      install:
-        - yarn install
-      before_script:
-        - export DISPLAY=':99.0'
-        - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        - tns usage-reporting disable
-        - tns error-reporting disable
-        - echo no | avdmanager create avd --force -n test -k "system-images;android-28;default;x86"
-        - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
-        - android-wait-for-emulator
-      script:
-        - travis_wait travis_retry rna unit 'test/*.js' --nativescript android
+    # Android emulator wont work in travis with api 28
+    # - stage: test
+    #   os: linux
+    #   env: CI_BUILD_TYPE=nativescript
+    #   language: android
+    #   jdk: oraclejdk8
+    #   node_js: 10
+    #   android:
+    #     components:
+    #       - platform-tools
+    #       - build-tools-28.0.2
+    #       - android-28
+    #       - extra-android-m2repository
+    #       - sys-img-armeabi-v7a-android-28
+    #   before_install:
+    #     - mkdir -p "$ANDROID_HOME/licenses"
+    #     - yes | sdkmanager tools
+    #     - yes | sdkmanager "system-images;android-28;default;x86"
+    #     - nvm install 10
+    #     - npm install -g nativescript
+    #     - yarn global add @chialab/rna-cli
+    #   install:
+    #     - yarn install
+    #   before_script:
+    #     - export DISPLAY=':99.0'
+    #     - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    #     - tns usage-reporting disable
+    #     - tns error-reporting disable
+    #     - echo no | avdmanager create avd --force -n test -k "system-images;android-28;default;x86"
+    #     - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+    #     - android-wait-for-emulator
+    #   script:
+    #     - travis_wait travis_retry rna unit 'test/*.js' --nativescript android
 
     - stage: deploy
       os: linux
