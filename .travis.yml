@@ -16,7 +16,7 @@ jobs:
       env: CI_BUILD_TYPE=default
       node_js: 10
       before_install:
-        - yarn global add github:chialab/rna-cli#fix/coverage
+        - yarn global add github:chialab/rna-cli#fix/node-coverage
         - yarn add codecov
       install:
         - yarn install
